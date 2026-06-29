@@ -1,0 +1,32 @@
+from pydantic_settings import BaseSettings
+from functools import lru_cache
+
+
+class Settings(BaseSettings):
+    openai_api_key: str = ""
+    admin_password: str = "admin123"
+    jwt_secret: str = "change-this-secret-in-production-32chars"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_hours: int = 24
+
+    allowed_origins: str = "https://legalassist.co.uk,http://localhost:3000"
+    database_url: str = "sqlite:///./legalassist.db"
+    chroma_db_path: str = "./chroma_db"
+
+    site_url: str = "https://legalassist.co.uk"
+    site_sitemap_url: str = "https://legalassist.co.uk/page-sitemap.xml"
+
+    app_env: str = "development"
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+    @property
+    def origins_list(self) -> list[str]:
+        return [o.strip() for o in self.allowed_origins.split(",") if o.strip()]
+
+
+@lru_cache()
+def get_settings() -> Settings:
+    return Settings()
