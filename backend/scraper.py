@@ -184,12 +184,12 @@ async def get_sitemap_urls() -> List[str]:
 
     # Add a few key pages not always in sitemap
     fallback_urls = [
-        "https://legalassist.co.uk/",
-        "https://legalassist.co.uk/services/",
-        "https://legalassist.co.uk/contact-us/",
-        "https://legalassist.co.uk/faqs-uk-leading-claims-management-company/",
-        "https://legalassist.co.uk/no-win-no-fee/",
-        "https://legalassist.co.uk/why-choose-us/",
+        "https://legalassistglobal.com/",
+        "https://legalassistglobal.com/services/",
+        "https://legalassistglobal.com/contact-us/",
+        "https://legalassistglobal.com/faqs-uk-leading-claims-management-company/",
+        "https://legalassistglobal.com/no-win-no-fee/",
+        "https://legalassistglobal.com/why-choose-us/",
     ]
     for u in fallback_urls:
         if u not in urls:
