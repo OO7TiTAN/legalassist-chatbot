@@ -33,7 +33,7 @@ if (!defined('ABSPATH')) {
 }
 
 // ─── CORS Headers ────────────────────────────────────────────────────────────
-$allowed_origins = ['https://legalassist.co.uk', 'https://www.legalassist.co.uk'];
+$allowed_origins = ['https://legalassistglobal.com', 'https://www.legalassistglobal.com'];
 $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
 
 if (in_array($origin, $allowed_origins) || strpos($origin, 'localhost') !== false) {
