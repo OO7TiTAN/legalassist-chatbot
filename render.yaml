@@ -14,7 +14,7 @@ services:
       - key: JWT_SECRET
         generateValue: true  # Render auto-generates a secure random value
       - key: ALLOWED_ORIGINS
-        value: https://legalassist.co.uk,https://www.legalassist.co.uk
+        value: https://legalassistglobal.com,https://www.legalassistglobal.com
       - key: APP_ENV
         value: production
       - key: DATABASE_URL
@@ -22,9 +22,9 @@ services:
       - key: CHROMA_DB_PATH
         value: ./chroma_db
       - key: SITE_URL
-        value: https://legalassist.co.uk
+        value: https://legalassistglobal.com
       - key: SITE_SITEMAP_URL
-        value: https://legalassist.co.uk/page-sitemap.xml
+        value: https://legalassistglobal.com/page-sitemap.xml
     # disk:
     #   name: legalassist-data
     #   mountPath: /opt/render/project/src/backend
