@@ -90,7 +90,7 @@ async function loadTraffic() {
       <div style="display:flex;flex-direction:column;gap:14px">
         ${data.map((item, i) => {
           const pct = Math.round((item.views / maxViews) * 100);
-          const shortUrl = item.url.replace('https://legalassist.co.uk', '') || '/';
+          const shortUrl = item.url.replace('https://legalassistglobal.com', '') || '/';
           return `
             <div>
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -149,7 +149,7 @@ async function loadContentPages() {
     tbody.innerHTML = pages.pages.map(p => `
       <tr>
         <td style="max-width:220px;font-size:12px">
-          <a href="${p.url}" target="_blank" style="color:#1e5f99" title="${p.url}">${p.url.replace('https://legalassist.co.uk', '') || '/'}</a>
+          <a href="${p.url}" target="_blank" style="color:#1e5f99" title="${p.url}">${p.url.replace('https://legalassistglobal.com', '') || '/'}</a>
         </td>
         <td style="font-size:13px;font-weight:500">${trunc(p.title, 45)}</td>
         <td><span class="la-badge ${p.chunk_count > 0 ? 'blue' : 'gray'}">${p.chunk_count}</span></td>
