@@ -39,7 +39,7 @@ async function loadConversations(page = 1) {
         </td>
         <td><span class="la-badge ${s.message_count > 5 ? 'blue' : 'gray'}">${s.message_count} msgs</span></td>
         <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#64748b">
-          ${s.page_url ? `<a href="${s.page_url}" target="_blank" style="color:#1e5f99" title="${s.page_url}">${trunc(s.page_url.replace('https://legalassist.co.uk', ''), 35)}</a>` : '—'}
+          ${s.page_url ? `<a href="${s.page_url}" target="_blank" style="color:#1e5f99" title="${s.page_url}">${trunc(s.page_url.replace('https://legalassistglobal.com', ''), 35)}</a>` : '—'}
         </td>
         <td>
           ${s.user_email
@@ -108,7 +108,7 @@ async function loadUsers(page = 1) {
         <td><a href="mailto:${u.email}" style="color:#1e5f99;font-weight:500">${u.email}</a></td>
         <td style="max-width:200px;font-size:13px;color:#475569">${trunc(u.query, 70)}</td>
         <td style="max-width:140px;font-size:12px">
-          ${u.page_url ? `<a href="${u.page_url}" target="_blank" style="color:#64748b">${trunc(u.page_url.replace('https://legalassist.co.uk', ''), 30)}</a>` : '—'}
+          ${u.page_url ? `<a href="${u.page_url}" target="_blank" style="color:#64748b">${trunc(u.page_url.replace('https://legalassistglobal.com', ''), 30)}</a>` : '—'}
         </td>
         <td>
           <a href="mailto:${u.email}?subject=Re: Your Legal Enquiry" class="btn btn-outline btn-sm">Reply ✉</a>
