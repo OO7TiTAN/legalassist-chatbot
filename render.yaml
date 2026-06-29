@@ -25,7 +25,7 @@ services:
         value: https://legalassist.co.uk
       - key: SITE_SITEMAP_URL
         value: https://legalassist.co.uk/page-sitemap.xml
-    disk:
-      name: legalassist-data
-      mountPath: /opt/render/project/src/backend
-      sizeGB: 1
+    # disk:
+    #   name: legalassist-data
+    #   mountPath: /opt/render/project/src/backend
+    #   sizeGB: 1
