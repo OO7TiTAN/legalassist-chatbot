@@ -1,0 +1,31 @@
+# Render.com deployment configuration
+services:
+  - type: web
+    name: legalassist-chatbot
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false          # Set manually in Render dashboard
+      - key: ADMIN_PASSWORD
+        sync: false          # Set manually in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true  # Render auto-generates a secure random value
+      - key: ALLOWED_ORIGINS
+        value: https://legalassist.co.uk,https://www.legalassist.co.uk
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        value: sqlite:///./legalassist.db
+      - key: CHROMA_DB_PATH
+        value: ./chroma_db
+      - key: SITE_URL
+        value: https://legalassist.co.uk
+      - key: SITE_SITEMAP_URL
+        value: https://legalassist.co.uk/page-sitemap.xml
+    disk:
+      name: legalassist-data
+      mountPath: /opt/render/project/src/backend
+      sizeGB: 1
