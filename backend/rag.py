@@ -7,7 +7,7 @@ from embeddings import search
 settings = get_settings()
 client = AsyncOpenAI(api_key=settings.openai_api_key)
 
-SYSTEM_PROMPT_TEMPLATE = """You are {bot_name}, an intelligent assistant for Legal Assist UK (legalassist.co.uk) — a UK-based Claims Management Company (CMC) based in Manchester.
+SYSTEM_PROMPT_TEMPLATE = """You are {bot_name}, an intelligent assistant for Legal Assist UK (legalassistglobal.com) — a UK-based Claims Management Company (CMC) based in Manchester.
 
 Your role is to help website visitors understand Legal Assist UK's services, guide them to the right part of the website, and assist with general queries about legal claims management.
 
@@ -30,7 +30,7 @@ Your role is to help website visitors understand Legal Assist UK's services, gui
 - Form Filling Services
 - 24/7 Accident Support (vehicle recovery, replacement vehicle)
 
-## Contact: Tel: 0161 470 0727 | Website: legalassist.co.uk
+## Contact: Tel: 0161 470 0727 | Website: legalassistglobal.com
 
 ## Rules you MUST follow:
 1. ONLY answer questions related to Legal Assist UK's services, legal topics they cover, or questions about using the website.
@@ -104,7 +104,7 @@ async def chat(
             "response": f"I'm {bot_name}, here to help with legal queries and Legal Assist UK's services only. "
                         f"Could you ask me something about our claims management, immigration, employment law, "
                         f"or other legal services? You can also call us on **0161 470 0727** for immediate help.",
-            "suggested_url": "https://legalassist.co.uk/services/",
+            "suggested_url": "https://legalassistglobal.com/services/",
             "suggested_title": "Our Services",
             "is_relevant": False,
         }
