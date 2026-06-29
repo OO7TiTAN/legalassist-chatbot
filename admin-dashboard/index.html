@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legal Assist — Admin Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0a1628 0%, #0f3460 50%, #1e5f99 100%);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    /* Animated background orbs */
+    body::before, body::after {
+      content: ''; position: absolute; border-radius: 50%;
+      filter: blur(80px); opacity: 0.15; pointer-events: none;
+    }
+    body::before { width: 500px; height: 500px; background: #3b82f6; top: -100px; left: -100px; }
+    body::after  { width: 400px; height: 400px; background: #06b6d4; bottom: -100px; right: -100px; }
+
+    .login-card {
+      background: rgba(255,255,255,0.97); backdrop-filter: blur(20px);
+      border-radius: 24px; padding: 48px 44px; width: 420px; max-width: calc(100vw - 32px);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+      position: relative; z-index: 1;
+    }
+    .logo-area { text-align: center; margin-bottom: 36px; }
+    .logo-icon {
+      width: 64px; height: 64px; background: linear-gradient(135deg, #0f3460, #1e5f99);
+      border-radius: 16px; display: inline-flex; align-items: center; justify-content: center;
+      font-size: 28px; margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(15,52,96,0.3);
+    }
+    .logo-title { font-size: 22px; font-weight: 700; color: #0f1929; }
+    .logo-sub { font-size: 14px; color: #667; margin-top: 4px; }
+
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    input[type="password"] {
+      width: 100%; padding: 12px 16px; border: 1.5px solid #d1d9e6;
+      border-radius: 12px; font-size: 15px; font-family: inherit; outline: none;
+      background: #f8fafc; transition: all 0.2s; color: #1a202c;
+    }
+    input[type="password"]:focus { border-color: #1e5f99; background: #fff; box-shadow: 0 0 0 3px rgba(30,95,153,0.1); }
+    input[type="password"]::placeholder { color: #aab; }
+
+    .btn-login {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, #0f3460, #1e5f99);
+      color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
+      box-shadow: 0 4px 16px rgba(15,52,96,0.3);
+    }
+    .btn-login:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(15,52,96,0.4); }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+    .error-msg {
+      display: none; background: #fff5f5; border: 1px solid #fed7d7; color: #c53030;
+      padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 18px;
+      text-align: center;
+    }
+    .error-msg.show { display: block; animation: shake 0.4s ease; }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)}
+    }
+    .footer-note { text-align: center; margin-top: 24px; font-size: 12px; color: #9aa; }
+    .footer-note a { color: #1e5f99; text-decoration: none; }
+    .loading-dots { display: inline-flex; gap: 4px; }
+    .loading-dots span {
+      width: 5px; height: 5px; background: #fff; border-radius: 50%;
+      animation: ld 1s ease-in-out infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes ld { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="logo-area">
+      <div class="logo-icon">⚖️</div>
+      <div class="logo-title">Legal Assist</div>
+      <div class="logo-sub">Chatbot Admin Dashboard</div>
+    </div>
+
+    <div class="error-msg" id="error-msg">Incorrect password. Please try again.</div>
+
+    <form id="login-form" onsubmit="doLogin(event)">
+      <div class="form-group">
+        <label for="password">Admin Password</label>
+        <input type="password" id="password" placeholder="Enter your admin password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn-login" id="login-btn">Sign In</button>
+    </form>
+
+    <div class="footer-note">
+      <a href="https://legalassist.co.uk" target="_blank">← Back to Website</a>
+    </div>
+  </div>
+
+  <script>
+    // ─── Configuration ──────────────────────────────────────────────────────
+    // UPDATE THIS after deploying your backend to Render!
+    const API_BASE = 'https://legalassist-chatbot.onrender.com';
+
+    // If already logged in, redirect
+    if (localStorage.getItem('la_admin_token')) {
+      window.location.href = 'dashboard.html';
+    }
+
+    async function doLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      const err = document.getElementById('error-msg');
+      const pass = document.getElementById('password').value;
+
+      err.classList.remove('show');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-dots"><span></span><span></span><span></span></span>';
+
+      try {
+        const res = await fetch(API_BASE + '/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pass }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          localStorage.setItem('la_admin_token', data.access_token);
+          localStorage.setItem('la_api_base', API_BASE);
+          window.location.href = 'dashboard.html';
+        } else {
+          err.classList.add('show');
+          btn.disabled = false;
+          btn.textContent = 'Sign In';
+        }
+      } catch (ex) {
+        err.textContent = 'Cannot connect to backend. Check your backend URL.';
+        err.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    }
+  </script>
+</body>
+</html>
