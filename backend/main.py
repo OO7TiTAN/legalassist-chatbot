@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="LegalAssist Chatbot API",
-    description="AI-powered chatbot backend for legalassist.co.uk",
+    description="AI-powered chatbot backend for legalassistglobal.com",
     version="1.0.0",
     lifespan=lifespan,
     docs_url="/docs" if settings.app_env != "production" else None,
