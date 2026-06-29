@@ -147,8 +147,6 @@ def extract_text_from_html(html: str, url: str) -> Tuple[str, str]:
 
     # Clean up whitespace
     text = re.sub(r"\s+", " ", text).strip()
-    # Remove very short fragments
-    text = re.sub(r"\b\w{1,2}\b\s*", lambda m: m.group() if len(m.group().strip()) > 1 else " ", text)
 
     return text, title
 
@@ -161,41 +159,78 @@ async def fetch_page(client: httpx.AsyncClient, url: str) -> Tuple[str, int]:
 
 
 async def get_sitemap_urls() -> List[str]:
-    """Fetch all page URLs from the sitemap."""
-    urls = []
+    """Fetch all page URLs by combining sitemap, fallbacks, and internal crawling."""
+    start_url = settings.site_url
+    if not start_url.endswith("/"):
+        start_url += "/"
+
+    visited = set()
+    to_visit = [start_url]
+    urls_found = []
+
     async with httpx.AsyncClient(
         headers={"User-Agent": "LegalAssistBot/1.0 (content indexer)"},
         follow_redirects=True
     ) as client:
+        # 1. Try sitemap first
         try:
             resp = await client.get(settings.site_sitemap_url, timeout=15.0)
-            soup = BeautifulSoup(resp.text, "lxml-xml")
-            for loc in soup.find_all("loc"):
-                url = loc.text.strip()
-                # Skip non-content pages
-                if any(skip in url for skip in [
-                    "/wp-content/", "/feed/", "/tag/", "/author/",
-                    "/wp-json/", "/xmlrpc", "sitemap"
-                ]):
-                    continue
-                urls.append(url)
+            if resp.status_code == 200:
+                soup = BeautifulSoup(resp.text, "lxml-xml")
+                for loc in soup.find_all("loc"):
+                    url = loc.text.strip()
+                    if url not in to_visit:
+                        to_visit.append(url)
         except Exception as e:
             print(f"[Scraper] Failed to fetch sitemap: {e}")
 
-    # Add a few key pages not always in sitemap
-    fallback_urls = [
-        "https://legalassistglobal.com/",
-        "https://legalassistglobal.com/services/",
-        "https://legalassistglobal.com/contact-us/",
-        "https://legalassistglobal.com/faqs-uk-leading-claims-management-company/",
-        "https://legalassistglobal.com/no-win-no-fee/",
-        "https://legalassistglobal.com/why-choose-us/",
-    ]
-    for u in fallback_urls:
-        if u not in urls:
-            urls.append(u)
+        # 2. Add fallbacks
+        fallback_urls = [
+            "https://legalassistglobal.com/",
+            "https://legalassistglobal.com/about-us/",
+            "https://legalassistglobal.com/services/",
+            "https://legalassistglobal.com/contact-us/",
+            "https://legalassistglobal.com/faqs-uk-leading-claims-management-company/",
+            "https://legalassistglobal.com/no-win-no-fee/",
+            "https://legalassistglobal.com/why-choose-us/",
+        ]
+        for u in fallback_urls:
+            if u not in to_visit:
+                to_visit.append(u)
 
-    return list(set(urls))
+        # 3. Crawl to discover any remaining links
+        while to_visit and len(urls_found) < 150:
+            current_url = to_visit.pop(0)
+            if current_url in visited:
+                continue
+
+            if any(skip in current_url for skip in [
+                "/wp-content/", "/feed/", "/tag/", "/author/",
+                "/wp-json/", "/xmlrpc", "sitemap", ".jpg", ".png", ".pdf"
+            ]):
+                visited.add(current_url)
+                continue
+
+            visited.add(current_url)
+            urls_found.append(current_url)
+
+            try:
+                resp = await client.get(current_url, timeout=10.0)
+                if resp.status_code == 200:
+                    soup = BeautifulSoup(resp.text, "lxml")
+                    for a_tag in soup.find_all("a", href=True):
+                        href = a_tag["href"]
+                        if href.startswith("/") and not href.startswith("//"):
+                            href = start_url.rstrip("/") + href
+                        
+                        if href.startswith(start_url) and "#" not in href:
+                            clean_url = href.split("?")[0]
+                            if clean_url not in visited and clean_url not in to_visit:
+                                to_visit.append(clean_url)
+            except Exception as e:
+                print(f"[Scraper] Crawl error on {current_url}: {e}")
+
+    return list(set(urls_found))
 
 
 async def scrape_and_index() -> dict:
