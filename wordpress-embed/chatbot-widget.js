@@ -1,6 +1,6 @@
 /**
  * LegalAssist Chatbot Widget v1.0
- * Self-contained embeddable chat widget for legalassist.co.uk
+ * Self-contained embeddable chat widget for legalassistglobal.com
  * Drop-in via <script src="chatbot-widget.js"></script>
  */
 (function () {
@@ -29,7 +29,7 @@
   const API_BASE = (() => {
     try {
       const host = window.location.hostname;
-      if (host.includes('legalassist.co.uk') || host.includes('localhost')) {
+      if (host.includes('legalassistglobal.com') || host.includes('localhost')) {
         return window.location.origin + CONFIG.proxyPath;
       }
     } catch (e) {}
@@ -305,7 +305,7 @@
           <!-- GDPR notice -->
           <div id="la-gdpr">
             🔒 This chat collects conversation data to help answer your questions.
-            See our <a href="https://legalassist.co.uk/privacy-policy/" target="_blank">Privacy Policy</a>.
+            See our <a href="https://legalassistglobal.com/privacy-policy/" target="_blank">Privacy Policy</a>.
             By continuing you agree to our use of this data.
             <br>
             <button id="la-gdpr-btn">I Understand — Start Chatting</button>
@@ -329,7 +329,7 @@
             </button>
           </div>
 
-          <div id="la-powered">Powered by <a href="https://legalassist.co.uk" target="_blank">Legal Assist UK</a></div>
+          <div id="la-powered">Powered by <a href="https://legalassistglobal.com" target="_blank">Legal Assist UK</a></div>
         </div>
       </div>
     `;
