@@ -9,12 +9,12 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_hours: int = 24
 
-    allowed_origins: str = "https://legalassist.co.uk,http://localhost:3000"
+    allowed_origins: str = "https://legalassistglobal.com,http://localhost:3000"
     database_url: str = "sqlite:///./legalassist.db"
     chroma_db_path: str = "./chroma_db"
 
-    site_url: str = "https://legalassist.co.uk"
-    site_sitemap_url: str = "https://legalassist.co.uk/page-sitemap.xml"
+    site_url: str = "https://legalassistglobal.com"
+    site_sitemap_url: str = "https://legalassistglobal.com/page-sitemap.xml"
 
     app_env: str = "development"
 
