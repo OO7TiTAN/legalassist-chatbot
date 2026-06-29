@@ -121,7 +121,7 @@ In the Admin Dashboard → **Settings**:
 
 | Field | Example |
 |-------|---------|
-| Admin Email | `admin@legalassist.co.uk` |
+| Admin Email | `admin@legalassistglobal.com` |
 | SMTP Host | `smtp.gmail.com` |
 | SMTP Port | `587` |
 | SMTP Username | `your@gmail.com` |
@@ -138,7 +138,7 @@ User types question
     ↓
 Widget sends to your backend (via PHP proxy)
     ↓
-Backend searches ChromaDB for relevant content from legalassist.co.uk
+Backend searches ChromaDB for relevant content from legalassistglobal.com
     ↓
 Top matching chunks sent to OpenAI GPT-4o with your site's context
     ↓
