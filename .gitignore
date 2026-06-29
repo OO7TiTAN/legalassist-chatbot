@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Environment variables — NEVER commit these
+.env
+*.env
+
+# Database and vector store (generated at runtime)
+*.db
+*.sqlite
+*.sqlite3
+chroma_db/
+chroma_data/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (for admin dashboard dependencies if any)
+node_modules/
+npm-debug.log
+
+# Render
+.render/
