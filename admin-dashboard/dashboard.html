@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legal Assist — Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="la-app">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+  <aside class="la-sidebar" id="sidebar">
+    <div class="la-sidebar-logo">
+      <div class="la-logo-icon">⚖️</div>
+      <div>
+        <div class="la-logo-text">Legal Assist</div>
+        <div class="la-logo-sub">Admin Dashboard</div>
+      </div>
+    </div>
+    <nav class="la-nav">
+      <div class="la-nav-section">
+        <div class="la-nav-label">Main</div>
+        <div class="la-nav-item active" data-section="overview" onclick="showSection('overview', this)">
+          <span class="nav-icon">📊</span> Overview
+        </div>
+        <div class="la-nav-item" data-section="conversations" onclick="showSection('conversations', this)">
+          <span class="nav-icon">💬</span> Conversations
+        </div>
+        <div class="la-nav-item" data-section="users" onclick="showSection('users', this)">
+          <span class="nav-icon">📧</span> User Leads
+        </div>
+        <div class="la-nav-item" data-section="analytics" onclick="showSection('analytics', this)">
+          <span class="nav-icon">📈</span> Analytics
+        </div>
+        <div class="la-nav-item" data-section="traffic" onclick="showSection('traffic', this)">
+          <span class="nav-icon">🌐</span> Traffic
+        </div>
+      </div>
+      <div class="la-nav-section">
+        <div class="la-nav-label">Management</div>
+        <div class="la-nav-item" data-section="content" onclick="showSection('content', this)">
+          <span class="nav-icon">📄</span> Content Index
+        </div>
+        <div class="la-nav-item" data-section="settings" onclick="showSection('settings', this)">
+          <span class="nav-icon">⚙️</span> Settings
+        </div>
+      </div>
+    </nav>
+    <div class="la-sidebar-footer">
+      <button class="la-logout-btn" onclick="logout()">
+        <span>🚪</span> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main ────────────────────────────────────────────────────────────── -->
+  <div class="la-main">
+    <header class="la-header">
+      <div class="la-header-left">
+        <span class="la-page-title" id="page-title">Overview</span>
+      </div>
+      <div class="la-header-right">
+        <span style="font-size:12px;color:#94a3b8" id="last-updated"></span>
+        <button class="la-refresh-btn" onclick="refreshCurrentSection()">↻ Refresh</button>
+        <a href="https://legalassist.co.uk" target="_blank" class="btn btn-outline btn-sm">Visit Site ↗</a>
+      </div>
+    </header>
+
+    <div class="la-content">
+
+      <!-- ── OVERVIEW ──────────────────────────────────────────────────── -->
+      <section id="section-overview">
+        <!-- Stat cards -->
+        <div class="la-stats-grid">
+          <div class="la-stat-card blue">
+            <div class="la-stat-icon">💬</div>
+            <div class="la-stat-value" id="stat-sessions">—</div>
+            <div class="la-stat-label">Total Conversations</div>
+            <div class="la-stat-sub" id="stat-sessions-today">Loading...</div>
+          </div>
+          <div class="la-stat-card green">
+            <div class="la-stat-icon">📨</div>
+            <div class="la-stat-value" id="stat-messages">—</div>
+            <div class="la-stat-label">Total Messages</div>
+            <div class="la-stat-sub" id="stat-avg-msgs">Avg per session: —</div>
+          </div>
+          <div class="la-stat-card amber">
+            <div class="la-stat-icon">📧</div>
+            <div class="la-stat-value" id="stat-users">—</div>
+            <div class="la-stat-label">Leads Collected</div>
+            <div class="la-stat-sub">User emails captured</div>
+          </div>
+          <div class="la-stat-card cyan">
+            <div class="la-stat-icon">🌐</div>
+            <div class="la-stat-value" id="stat-pageviews">—</div>
+            <div class="la-stat-label">Page Views Tracked</div>
+            <div class="la-stat-sub">Via chat widget</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="la-charts-grid">
+          <div class="la-panel">
+            <div class="la-panel-header">
+              <span class="la-panel-title">📈 Daily Conversations (30 days)</span>
+            </div>
+            <div class="la-panel-body">
+              <div class="la-chart-wrap"><canvas id="chart-daily"></canvas></div>
+            </div>
+          </div>
+          <div class="la-panel">
+            <div class="la-panel-header">
+              <span class="la-panel-title">🕐 Traffic by Hour</span>
+            </div>
+            <div class="la-panel-body">
+              <div class="la-chart-wrap"><canvas id="chart-hourly"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top queries -->
+        <div class="la-panel">
+          <div class="la-panel-header">
+            <span class="la-panel-title">🔍 Top User Queries</span>
+            <button class="btn btn-outline btn-sm" onclick="showSection('conversations', document.querySelector('[data-section=conversations]'))">View All</button>
+          </div>
+          <div class="la-panel-body" id="top-queries-list">
+            <div class="la-spinner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── CONVERSATIONS ──────────────────────────────────────────────── -->
+      <section id="section-conversations" style="display:none">
+        <div class="la-panel">
+          <div class="la-panel-header">
+            <span class="la-panel-title">💬 All Conversations</span>
+            <div style="display:flex;gap:8px">
+              <select class="la-select" style="width:auto;padding:7px 12px;font-size:13px" id="filter-email" onchange="loadConversations(1)">
+                <option value="">All sessions</option>
+                <option value="true">Has email</option>
+                <option value="false">No email</option>
+              </select>
+            </div>
+          </div>
+          <div class="la-panel-body" style="padding-bottom:0">
+            <div class="la-filter-bar">
+              <input type="text" class="la-search-input" id="conv-search" placeholder="Search conversations..." oninput="debounce(loadConversations, 400)(1)">
+            </div>
+            <div class="la-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Started</th>
+                    <th>User</th>
+                    <th>Messages</th>
+                    <th>Page</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="conv-tbody">
+                  <tr><td colspan="6"><div class="la-spinner"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="la-pagination" id="conv-pagination"></div>
+        </div>
+      </section>
+
+      <!-- ── USERS ──────────────────────────────────────────────────────── -->
+      <section id="section-users" style="display:none">
+        <div class="la-panel">
+          <div class="la-panel-header">
+            <span class="la-panel-title">📧 User Leads</span>
+            <button class="btn btn-outline btn-sm" onclick="exportUsersCSV()">⬇ Export CSV</button>
+          </div>
+          <div class="la-panel-body" style="padding-bottom:0">
+            <div class="la-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Query</th>
+                    <th>Page</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="users-tbody">
+                  <tr><td colspan="6"><div class="la-spinner"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="la-pagination" id="users-pagination"></div>
+        </div>
+      </section>
+
+      <!-- ── ANALYTICS ──────────────────────────────────────────────────── -->
+      <section id="section-analytics" style="display:none">
+        <div class="la-charts-grid">
+          <div class="la-panel">
+            <div class="la-panel-header"><span class="la-panel-title">📊 Conversation Volume (30d)</span></div>
+            <div class="la-panel-body"><div class="la-chart-wrap"><canvas id="chart-analytics-daily"></canvas></div></div>
+          </div>
+          <div class="la-panel">
+            <div class="la-panel-header"><span class="la-panel-title">🔍 Top Queries</span></div>
+            <div class="la-panel-body"><div class="la-chart-wrap"><canvas id="chart-queries"></canvas></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── TRAFFIC ────────────────────────────────────────────────────── -->
+      <section id="section-traffic" style="display:none">
+        <div class="la-panel">
+          <div class="la-panel-header"><span class="la-panel-title">🌐 Top Pages by Traffic (30 days)</span></div>
+          <div class="la-panel-body" id="traffic-body">
+            <div class="la-spinner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── CONTENT INDEX ──────────────────────────────────────────────── -->
+      <section id="section-content" style="display:none">
+        <div class="la-panel" style="margin-bottom:20px">
+          <div class="la-panel-header">
+            <span class="la-panel-title">🔄 Re-Index Website Content</span>
+          </div>
+          <div class="la-panel-body">
+            <p style="font-size:14px;color:#64748b;margin-bottom:16px">
+              Click below to re-scrape all pages on legalassist.co.uk and update the AI's knowledge base.
+              This takes 2–5 minutes and runs in the background. Use this whenever you update your website content.
+            </p>
+            <div id="scrape-status-box" style="display:none" class="la-alert info">
+              <span>⏳</span> <span id="scrape-status-msg">Scraping in progress...</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <button class="btn btn-primary" id="scrape-btn" onclick="triggerScrape()">
+                🔄 Re-Index Now
+              </button>
+              <span id="scrape-last" style="font-size:12px;color:#94a3b8"></span>
+            </div>
+          </div>
+        </div>
+        <div class="la-panel">
+          <div class="la-panel-header">
+            <span class="la-panel-title">📄 Indexed Pages</span>
+            <span id="indexed-count" class="la-badge blue">Loading...</span>
+          </div>
+          <div class="la-panel-body" style="padding-bottom:0">
+            <div class="la-table-wrap">
+              <table>
+                <thead>
+                  <tr><th>URL</th><th>Title</th><th>Chunks</th><th>Status</th><th>Last Scraped</th></tr>
+                </thead>
+                <tbody id="content-tbody">
+                  <tr><td colspan="5"><div class="la-spinner"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SETTINGS ───────────────────────────────────────────────────── -->
+      <section id="section-settings" style="display:none">
+        <div class="la-panel">
+          <div class="la-panel-header">
+            <span class="la-panel-title">⚙️ Chatbot Settings</span>
+          </div>
+          <div class="la-panel-body">
+            <div id="settings-alert" style="display:none"></div>
+            <form id="settings-form" onsubmit="saveSettings(event)">
+
+              <h3 style="font-size:14px;font-weight:700;color:#0f3460;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #e2e8f0">
+                📧 Email Notifications
+              </h3>
+              <div class="la-form-grid">
+                <div class="la-form-group">
+                  <label class="la-form-label">Admin Notification Email</label>
+                  <input type="email" class="la-input" id="s-admin-email" placeholder="you@yourdomain.com">
+                  <div class="la-form-hint">Lead emails and transcripts will be sent here</div>
+                </div>
+                <div class="la-form-group">
+                  <label class="la-form-label">From Name</label>
+                  <input type="text" class="la-input" id="s-smtp-from-name" placeholder="LegalAssist Chatbot">
+                </div>
+              </div>
+
+              <h3 style="font-size:14px;font-weight:700;color:#0f3460;margin:24px 0 16px;padding-bottom:10px;border-bottom:1px solid #e2e8f0">
+                🔌 SMTP Configuration
+              </h3>
+              <div class="la-form-row">
+                <div class="la-form-group">
+                  <label class="la-form-label">SMTP Host</label>
+                  <input type="text" class="la-input" id="s-smtp-host" placeholder="smtp.gmail.com">
+                </div>
+                <div class="la-form-group">
+                  <label class="la-form-label">SMTP Port</label>
+                  <input type="text" class="la-input" id="s-smtp-port" placeholder="587">
+                </div>
+                <div class="la-form-group">
+                  <label class="la-form-label">SMTP Username</label>
+                  <input type="email" class="la-input" id="s-smtp-user" placeholder="your@gmail.com">
+                </div>
+              </div>
+              <div class="la-form-group">
+                <label class="la-form-label">SMTP Password / App Password</label>
+                <input type="password" class="la-input" id="s-smtp-password" placeholder="Leave blank to keep existing">
+                <div class="la-form-hint">For Gmail, use an App Password (not your regular password). <a href="https://support.google.com/accounts/answer/185833" target="_blank" style="color:#1e5f99">How to create one →</a></div>
+              </div>
+
+              <h3 style="font-size:14px;font-weight:700;color:#0f3460;margin:24px 0 16px;padding-bottom:10px;border-bottom:1px solid #e2e8f0">
+                🤖 Chatbot Persona
+              </h3>
+              <div class="la-form-grid">
+                <div class="la-form-group">
+                  <label class="la-form-label">Bot Display Name</label>
+                  <input type="text" class="la-input" id="s-bot-name" placeholder="Legal Assist Bot">
+                </div>
+                <div class="la-form-group" style="display:flex;align-items:center;gap:12px;padding-top:24px">
+                  <label class="la-toggle">
+                    <input type="checkbox" id="s-auto-transcripts">
+                    <span class="la-toggle-track"></span>
+                    <span class="la-toggle-thumb"></span>
+                  </label>
+                  <span style="font-size:14px;font-weight:500">Email conversation transcripts automatically</span>
+                </div>
+              </div>
+              <div class="la-form-group">
+                <label class="la-form-label">Greeting Message</label>
+                <textarea class="la-textarea" id="s-greeting" rows="3" placeholder="Hello! I'm here to help..."></textarea>
+                <div class="la-form-hint">This is the first message users see when they open the chat</div>
+              </div>
+
+              <div style="margin-top:28px">
+                <button type="submit" class="btn btn-primary" id="save-btn">💾 Save Settings</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /la-content -->
+  </div><!-- /la-main -->
+</div><!-- /la-app -->
+
+<!-- Conversation modal -->
+<div class="la-modal-overlay" id="conv-modal">
+  <div class="la-modal" style="width:700px">
+    <div class="la-modal-header">
+      <span class="la-modal-title" id="modal-title">Conversation</span>
+      <button class="la-modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="la-modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="la-toast"></div>
+
+<script src="scripts/auth.js"></script>
+<script src="scripts/dashboard.js"></script>
+<script src="scripts/conversations.js"></script>
+<script src="scripts/analytics.js"></script>
+<script src="scripts/settings.js"></script>
+</body>
+</html>
