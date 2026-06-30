@@ -4,30 +4,48 @@ from sqlmodel import SQLModel, Field, Session, create_engine, select
 from config import get_settings
 import uuid
 import os
+import socket
 from urllib.parse import quote
 
 settings = get_settings()
 
 # Build database engine
-# If DB_HOST + DB_PASSWORD set individually, use those (avoids URL special-char issues)
 _db_host = os.environ.get("DB_HOST", "")
 _db_pass = os.environ.get("DB_PASSWORD", "")
 
 if _db_host and _db_pass:
-    # quote() percent-encodes special chars like @ in the password
     _encoded = quote(_db_pass, safe="")
     _db_url = f"postgresql+psycopg2://postgres:{_encoded}@{_db_host}:5432/postgres?sslmode=require"
-    print(f"[DB] Connecting to PostgreSQL at {_db_host}")
+
+    # Force IPv4 — Render free tier can't reach Supabase via IPv6
+    _ipv4 = None
+    try:
+        for info in socket.getaddrinfo(_db_host, 5432, socket.AF_INET):
+            _ipv4 = info[4][0]
+            break
+    except Exception as e:
+        print(f"[DB] IPv4 resolution warning: {e}")
+
+    _connect_args = {"sslmode": "require"}
+    if _ipv4:
+        _connect_args["hostaddr"] = _ipv4
+        print(f"[DB] Connecting to PostgreSQL at {_db_host} via IPv4 {_ipv4}")
+    else:
+        print(f"[DB] Connecting to PostgreSQL at {_db_host} (no IPv4 found, using default)")
+
+    engine = create_engine(_db_url, echo=False, pool_pre_ping=True, pool_recycle=300,
+                           connect_args=_connect_args)
 else:
     _db_url = settings.database_url
     print(f"[DB] DATABASE_URL scheme: {_db_url.split('://')[0]}")
     if ("postgresql" in _db_url or "postgres" in _db_url) and "sslmode" not in _db_url:
         _db_url += "?sslmode=require"
 
-if "sqlite" in _db_url:
-    engine = create_engine(_db_url, echo=False)
-else:
-    engine = create_engine(_db_url, echo=False, pool_pre_ping=True, pool_recycle=300)
+    if "sqlite" in _db_url:
+        engine = create_engine(_db_url, echo=False)
+    else:
+        engine = create_engine(_db_url, echo=False, pool_pre_ping=True, pool_recycle=300)
+
 
 
 
