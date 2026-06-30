@@ -4,20 +4,37 @@ from sqlmodel import SQLModel, Field, Session, create_engine, select
 from config import get_settings
 import uuid
 
+import os as _os
+from sqlalchemy.engine import URL as _SAURL
+
 settings = get_settings()
 
-# Build engine with correct args for PostgreSQL vs SQLite
-_db_url = settings.database_url
-if _db_url.startswith("postgresql") or _db_url.startswith("postgres"):
-    engine = create_engine(
-        _db_url,
-        echo=False,
-        pool_pre_ping=True,       # Auto-recover dropped connections
-        pool_recycle=300,         # Recycle connections every 5 min
-        connect_args={"sslmode": "require"},  # Supabase requires SSL
+# Prefer individual DB_ vars (avoids URL-encoding issues with special chars in passwords)
+_db_host     = _os.environ.get("DB_HOST", "")
+_db_password = _os.environ.get("DB_PASSWORD", "")
+
+if _db_host and _db_password:
+    # Build the URL safely — SQLAlchemy handles special chars in password correctly
+    _sa_url = _SAURL.create(
+        "postgresql+psycopg2",
+        username="postgres",
+        password=_db_password,
+        host=_db_host,
+        port=5432,
+        database="postgres",
+        query={"sslmode": "require"},
     )
+    print(f"[DB] Using PostgreSQL via DB_HOST env var: {_db_host}")
+    engine = create_engine(_sa_url, echo=False, pool_pre_ping=True, pool_recycle=300)
 else:
-    engine = create_engine(_db_url, echo=False)
+    _db_url = settings.database_url
+    print(f"[DB] DATABASE_URL scheme: {_db_url.split('://')[0]}")
+    if _db_url.startswith("postgresql") or _db_url.startswith("postgres"):
+        if "sslmode" not in _db_url:
+            _db_url = _db_url + ("&" if "?" in _db_url else "?") + "sslmode=require"
+        engine = create_engine(_db_url, echo=False, pool_pre_ping=True, pool_recycle=300)
+    else:
+        engine = create_engine(_db_url, echo=False)
 
 
 # ─── Models ───────────────────────────────────────────────────────────────────
