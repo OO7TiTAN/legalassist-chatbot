@@ -5,7 +5,19 @@ from config import get_settings
 import uuid
 
 settings = get_settings()
-engine = create_engine(settings.database_url, echo=False)
+
+# Build engine with correct args for PostgreSQL vs SQLite
+_db_url = settings.database_url
+if _db_url.startswith("postgresql") or _db_url.startswith("postgres"):
+    engine = create_engine(
+        _db_url,
+        echo=False,
+        pool_pre_ping=True,       # Auto-recover dropped connections
+        pool_recycle=300,         # Recycle connections every 5 min
+        connect_args={"sslmode": "require"},  # Supabase requires SSL
+    )
+else:
+    engine = create_engine(_db_url, echo=False)
 
 
 # ─── Models ───────────────────────────────────────────────────────────────────
