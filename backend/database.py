@@ -3,38 +3,32 @@ from typing import Optional
 from sqlmodel import SQLModel, Field, Session, create_engine, select
 from config import get_settings
 import uuid
-
-import os as _os
-from sqlalchemy.engine import URL as _SAURL
+import os
+from urllib.parse import quote
 
 settings = get_settings()
 
-# Prefer individual DB_ vars (avoids URL-encoding issues with special chars in passwords)
-_db_host     = _os.environ.get("DB_HOST", "")
-_db_password = _os.environ.get("DB_PASSWORD", "")
+# Build database engine
+# If DB_HOST + DB_PASSWORD set individually, use those (avoids URL special-char issues)
+_db_host = os.environ.get("DB_HOST", "")
+_db_pass = os.environ.get("DB_PASSWORD", "")
 
-if _db_host and _db_password:
-    # Build the URL safely — SQLAlchemy handles special chars in password correctly
-    _sa_url = _SAURL.create(
-        "postgresql+psycopg2",
-        username="postgres",
-        password=_db_password,
-        host=_db_host,
-        port=5432,
-        database="postgres",
-        query={"sslmode": "require"},
-    )
-    print(f"[DB] Using PostgreSQL via DB_HOST env var: {_db_host}")
-    engine = create_engine(_sa_url, echo=False, pool_pre_ping=True, pool_recycle=300)
+if _db_host and _db_pass:
+    # quote() percent-encodes special chars like @ in the password
+    _encoded = quote(_db_pass, safe="")
+    _db_url = f"postgresql+psycopg2://postgres:{_encoded}@{_db_host}:5432/postgres?sslmode=require"
+    print(f"[DB] Connecting to PostgreSQL at {_db_host}")
 else:
     _db_url = settings.database_url
     print(f"[DB] DATABASE_URL scheme: {_db_url.split('://')[0]}")
-    if _db_url.startswith("postgresql") or _db_url.startswith("postgres"):
-        if "sslmode" not in _db_url:
-            _db_url = _db_url + ("&" if "?" in _db_url else "?") + "sslmode=require"
-        engine = create_engine(_db_url, echo=False, pool_pre_ping=True, pool_recycle=300)
-    else:
-        engine = create_engine(_db_url, echo=False)
+    if ("postgresql" in _db_url or "postgres" in _db_url) and "sslmode" not in _db_url:
+        _db_url += "?sslmode=require"
+
+if "sqlite" in _db_url:
+    engine = create_engine(_db_url, echo=False)
+else:
+    engine = create_engine(_db_url, echo=False, pool_pre_ping=True, pool_recycle=300)
+
 
 
 # ─── Models ───────────────────────────────────────────────────────────────────
