@@ -15,11 +15,12 @@ _collection = None
 COLLECTION_NAME = "legalassist_content"
 
 
-def get_chroma() -> chromadb.PersistentClient:
+def get_chroma() -> chromadb.EphemeralClient:
     global _chroma_client
     if _chroma_client is None:
-        _chroma_client = chromadb.PersistentClient(
-            path=settings.chroma_db_path,
+        # Use in-memory ChromaDB — the auto-scrape on startup rebuilds the index
+        # from legalassistglobal.com each time, so persistence is not needed here.
+        _chroma_client = chromadb.EphemeralClient(
             settings=ChromaSettings(anonymized_telemetry=False)
         )
     return _chroma_client
