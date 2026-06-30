@@ -18,9 +18,9 @@ services:
       - key: APP_ENV
         value: production
       - key: DATABASE_URL
-        value: sqlite:////data/legalassist.db
+        sync: false          # Set via Render dashboard to Supabase PostgreSQL URL
       - key: CHROMA_DB_PATH
-        value: /data/chroma_db
+        value: ./chroma_db
       - key: SITE_URL
         value: https://legalassistglobal.com
       - key: SITE_SITEMAP_URL
