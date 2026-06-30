@@ -18,14 +18,14 @@ services:
       - key: APP_ENV
         value: production
       - key: DATABASE_URL
-        value: sqlite:///./legalassist.db
+        value: sqlite:////data/legalassist.db
       - key: CHROMA_DB_PATH
-        value: ./chroma_db
+        value: /data/chroma_db
       - key: SITE_URL
         value: https://legalassistglobal.com
       - key: SITE_SITEMAP_URL
         value: https://legalassistglobal.com/page-sitemap.xml
-    # disk:
-    #   name: legalassist-data
-    #   mountPath: /opt/render/project/src/backend
-    #   sizeGB: 1
+    disk:
+      name: legalassist-data
+      mountPath: /data
+      sizeGB: 1
