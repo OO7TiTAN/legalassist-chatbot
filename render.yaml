@@ -17,20 +17,22 @@ services:
         value: https://legalassistglobal.com,https://www.legalassistglobal.com
       - key: APP_ENV
         value: production
-      # --- Supabase PostgreSQL (set via Render dashboard / API) ---
+      # ── Neon PostgreSQL connection ──────────────────────────────────
       - key: DB_HOST
-        sync: false          # e.g. aws-0-eu-west-2.pooler.supabase.com
+        sync: false          # ep-long-recipe-ab0ct4dm.eu-west-2.aws.neon.tech
       - key: DB_USER
-        sync: false          # e.g. postgres.yourprojectref
+        sync: false          # neondb_owner
       - key: DB_PASSWORD
-        sync: false          # Your Supabase DB password
+        sync: false          # Your Neon DB password
       - key: DB_PORT
-        sync: false          # 5432
+        value: "5432"
+      - key: DB_NAME
+        value: neondb
+      # ── Fallback (not used if DB_HOST is set) ──────────────────────
       - key: DATABASE_URL
-        sync: false          # Fallback full URL if DB_HOST not set
-      # --- Site config ---
+        sync: false
+      # ── Site config ────────────────────────────────────────────────
       - key: SITE_URL
         value: https://legalassistglobal.com
       - key: SITE_SITEMAP_URL
         value: https://legalassistglobal.com/page-sitemap.xml
-      # Note: CHROMA_DB_PATH is no longer needed — ChromaDB runs in-memory
