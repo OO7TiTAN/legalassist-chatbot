@@ -9,18 +9,23 @@ from urllib.parse import quote
 
 settings = get_settings()
 
-# Build database engine
-_db_host = os.environ.get("DB_HOST", "")
-_db_pass = os.environ.get("DB_PASSWORD", "")
-_db_user = os.environ.get("DB_USER", "postgres")
-_db_port = os.environ.get("DB_PORT", "5432")
+# ── Database engine ────────────────────────────────────────────────────────────
+# Priority: OS env vars → pydantic Settings fields → sqlite fallback
+# For Neon (production), DB_HOST / DB_USER / DB_PASSWORD / DB_PORT / DB_NAME
+# are set on Render. For local dev, set them in .env or use the sqlite fallback.
+
+_db_host = os.environ.get("DB_HOST", "") or settings.db_host
+_db_pass = os.environ.get("DB_PASSWORD", "") or settings.db_password
+_db_user = os.environ.get("DB_USER", "") or settings.db_user
+_db_port = os.environ.get("DB_PORT", "") or settings.db_port
+_db_name = os.environ.get("DB_NAME", "") or settings.db_name
 
 if _db_host and _db_pass:
     _encoded = quote(_db_pass, safe="")
-    # sslmode passed via connect_args only (not in URL) to avoid psycopg2 conflict
-    _db_url = f"postgresql+psycopg2://{_db_user}:{_encoded}@{_db_host}:{_db_port}/postgres"
+    # sslmode passed via connect_args only — avoids psycopg2 duplicate-param error
+    _db_url = f"postgresql+psycopg2://{_db_user}:{_encoded}@{_db_host}:{_db_port}/{_db_name}"
 
-    # Force IPv4 — Render free tier can't reach Supabase via IPv6
+    # Force IPv4 — guards against IPv6 routing issues on some hosting platforms
     _ipv4 = None
     try:
         for info in socket.getaddrinfo(_db_host, int(_db_port), socket.AF_INET):
@@ -32,22 +37,23 @@ if _db_host and _db_pass:
     _connect_args = {"sslmode": "require"}
     if _ipv4:
         _connect_args["hostaddr"] = _ipv4
-        print(f"[DB] Connecting to {_db_host} via IPv4 {_ipv4}")
+        print(f"[DB] Connecting to Neon/{_db_name} at {_db_host} via IPv4 {_ipv4}")
     else:
-        print(f"[DB] Connecting to {_db_host} (default routing)")
+        print(f"[DB] Connecting to Neon/{_db_name} at {_db_host}")
 
-    engine = create_engine(_db_url, echo=False, pool_pre_ping=True, pool_recycle=300,
-                           connect_args=_connect_args)
+    engine = create_engine(
+        _db_url,
+        echo=False,
+        pool_pre_ping=True,
+        pool_recycle=300,
+        connect_args=_connect_args,
+    )
 else:
+    # Local dev fallback — SQLite
     _db_url = settings.database_url
-    print(f"[DB] DATABASE_URL scheme: {_db_url.split('://')[0]}")
-    if ("postgresql" in _db_url or "postgres" in _db_url) and "sslmode" not in _db_url:
-        _db_url += "?sslmode=require"
+    print(f"[DB] Using local SQLite: {_db_url}")
+    engine = create_engine(_db_url, echo=False)
 
-    if "sqlite" in _db_url:
-        engine = create_engine(_db_url, echo=False)
-    else:
-        engine = create_engine(_db_url, echo=False, pool_pre_ping=True, pool_recycle=300)
 
 
 
