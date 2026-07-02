@@ -17,15 +17,20 @@ services:
         value: https://legalassistglobal.com,https://www.legalassistglobal.com
       - key: APP_ENV
         value: production
+      # --- Supabase PostgreSQL (set via Render dashboard / API) ---
+      - key: DB_HOST
+        sync: false          # e.g. aws-0-eu-west-2.pooler.supabase.com
+      - key: DB_USER
+        sync: false          # e.g. postgres.yourprojectref
+      - key: DB_PASSWORD
+        sync: false          # Your Supabase DB password
+      - key: DB_PORT
+        sync: false          # 5432
       - key: DATABASE_URL
-        sync: false          # Set via Render dashboard to Supabase PostgreSQL URL
-      - key: CHROMA_DB_PATH
-        value: ./chroma_db
+        sync: false          # Fallback full URL if DB_HOST not set
+      # --- Site config ---
       - key: SITE_URL
         value: https://legalassistglobal.com
       - key: SITE_SITEMAP_URL
         value: https://legalassistglobal.com/page-sitemap.xml
-    disk:
-      name: legalassist-data
-      mountPath: /data
-      sizeGB: 1
+      # Note: CHROMA_DB_PATH is no longer needed — ChromaDB runs in-memory
