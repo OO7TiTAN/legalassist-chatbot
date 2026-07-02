@@ -17,12 +17,13 @@ _db_port = os.environ.get("DB_PORT", "5432")
 
 if _db_host and _db_pass:
     _encoded = quote(_db_pass, safe="")
-    _db_url = f"postgresql+psycopg2://{_db_user}:{_encoded}@{_db_host}:{_db_port}/postgres?sslmode=require"
+    # sslmode passed via connect_args only (not in URL) to avoid psycopg2 conflict
+    _db_url = f"postgresql+psycopg2://{_db_user}:{_encoded}@{_db_host}:{_db_port}/postgres"
 
     # Force IPv4 — Render free tier can't reach Supabase via IPv6
     _ipv4 = None
     try:
-        for info in socket.getaddrinfo(_db_host, 5432, socket.AF_INET):
+        for info in socket.getaddrinfo(_db_host, int(_db_port), socket.AF_INET):
             _ipv4 = info[4][0]
             break
     except Exception as e:
@@ -31,9 +32,9 @@ if _db_host and _db_pass:
     _connect_args = {"sslmode": "require"}
     if _ipv4:
         _connect_args["hostaddr"] = _ipv4
-        print(f"[DB] Connecting to PostgreSQL at {_db_host} via IPv4 {_ipv4}")
+        print(f"[DB] Connecting to {_db_host} via IPv4 {_ipv4}")
     else:
-        print(f"[DB] Connecting to PostgreSQL at {_db_host} (no IPv4 found, using default)")
+        print(f"[DB] Connecting to {_db_host} (default routing)")
 
     engine = create_engine(_db_url, echo=False, pool_pre_ping=True, pool_recycle=300,
                            connect_args=_connect_args)
