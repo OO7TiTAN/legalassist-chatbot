@@ -10,8 +10,16 @@ class Settings(BaseSettings):
     jwt_expire_hours: int = 24
 
     allowed_origins: str = "https://legalassistglobal.com,http://localhost:3000"
+
+    # ── Neon / PostgreSQL individual connection params (preferred) ──
+    db_host: str = ""
+    db_user: str = "neondb_owner"
+    db_password: str = ""
+    db_port: str = "5432"
+    db_name: str = "neondb"
+
+    # ── Fallback full URL (used if DB_HOST not set) ──
     database_url: str = "sqlite:///./legalassist.db"
-    chroma_db_path: str = "./chroma_db"
 
     site_url: str = "https://legalassistglobal.com"
     site_sitemap_url: str = "https://legalassistglobal.com/page-sitemap.xml"
