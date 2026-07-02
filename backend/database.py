@@ -12,10 +12,12 @@ settings = get_settings()
 # Build database engine
 _db_host = os.environ.get("DB_HOST", "")
 _db_pass = os.environ.get("DB_PASSWORD", "")
+_db_user = os.environ.get("DB_USER", "postgres")
+_db_port = os.environ.get("DB_PORT", "5432")
 
 if _db_host and _db_pass:
     _encoded = quote(_db_pass, safe="")
-    _db_url = f"postgresql+psycopg2://postgres:{_encoded}@{_db_host}:5432/postgres?sslmode=require"
+    _db_url = f"postgresql+psycopg2://{_db_user}:{_encoded}@{_db_host}:{_db_port}/postgres?sslmode=require"
 
     # Force IPv4 — Render free tier can't reach Supabase via IPv6
     _ipv4 = None
