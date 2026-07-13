@@ -25,21 +25,8 @@ if _db_host and _db_pass:
     # sslmode passed via connect_args only — avoids psycopg2 duplicate-param error
     _db_url = f"postgresql+psycopg2://{_db_user}:{_encoded}@{_db_host}:{_db_port}/{_db_name}"
 
-    # Force IPv4 — guards against IPv6 routing issues on some hosting platforms
-    _ipv4 = None
-    try:
-        for info in socket.getaddrinfo(_db_host, int(_db_port), socket.AF_INET):
-            _ipv4 = info[4][0]
-            break
-    except Exception as e:
-        print(f"[DB] IPv4 resolution warning: {e}")
-
     _connect_args = {"sslmode": "require"}
-    if _ipv4:
-        _connect_args["hostaddr"] = _ipv4
-        print(f"[DB] Connecting to Neon/{_db_name} at {_db_host} via IPv4 {_ipv4}")
-    else:
-        print(f"[DB] Connecting to Neon/{_db_name} at {_db_host}")
+    print(f"[DB] Connecting to Neon/{_db_name} at {_db_host}:{_db_port}")
 
     engine = create_engine(
         _db_url,
