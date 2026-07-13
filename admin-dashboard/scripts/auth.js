@@ -1,5 +1,7 @@
 // ─── API Base + Auth ─────────────────────────────────────────────────────────
-const API_BASE = localStorage.getItem('la_api_base') || 'https://legalassist-chatbot.onrender.com';
+const API_BASE = (window.location.origin && window.location.origin.startsWith('http') && !window.location.origin.includes('file:'))
+  ? window.location.origin
+  : (localStorage.getItem('la_api_base') || 'https://legalassist-chatbot.onrender.com');
 const TOKEN = localStorage.getItem('la_admin_token');
 
 if (!TOKEN) window.location.href = 'index.html';
