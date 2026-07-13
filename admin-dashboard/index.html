@@ -82,8 +82,10 @@
 <body>
   <div class="login-card">
     <div class="logo-area">
-      <div class="logo-icon">⚖️</div>
-      <div class="logo-title">Legal Assist</div>
+      <div class="logo-icon">
+        <img src="https://legalassistglobal.com/wp-content/uploads/2025/11/cropped-1.-L.A-Pakistan-Logo.-1-192x192.png" alt="Legal Assist Global" style="width: 48px; height: 48px; border-radius: 10px; object-fit: contain;">
+      </div>
+      <div class="logo-title">Legal Assist Global</div>
       <div class="logo-sub">Chatbot Admin Dashboard</div>
     </div>
 
@@ -105,7 +107,9 @@
   <script>
     // ─── Configuration ──────────────────────────────────────────────────────
     // UPDATE THIS after deploying your backend to Render!
-    const API_BASE = 'https://legalassist-chatbot.onrender.com';
+    const API_BASE = (window.location.origin && window.location.origin.startsWith('http') && !window.location.origin.includes('file:'))
+      ? window.location.origin
+      : 'https://legalassist-chatbot.onrender.com';
 
     // If already logged in, redirect
     if (localStorage.getItem('la_admin_token')) {
