@@ -291,7 +291,7 @@
         <div id="la-window" role="dialog" aria-label="Legal Assist Chat">
           <!-- Header -->
           <div id="la-header">
-            <div id="la-avatar">⚖️</div>
+            <div id="la-avatar" style="background: #fff; padding: 2px; overflow: hidden;"><img src="https://legalassistglobal.com/wp-content/uploads/2025/11/cropped-1.-L.A-Pakistan-Logo.-1-192x192.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;"></div>
             <div id="la-header-info">
               <div id="la-header-name">${CONFIG.botName}</div>
               <div id="la-status">
