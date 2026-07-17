@@ -4,7 +4,6 @@ from sqlmodel import SQLModel, Field, Session, create_engine, select
 from config import get_settings
 import uuid
 import os
-import socket
 from urllib.parse import quote
 
 settings = get_settings()
