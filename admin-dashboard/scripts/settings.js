@@ -40,9 +40,6 @@ async function saveSettings(e) {
   const pass = document.getElementById('s-smtp-password').value;
   if (pass && pass !== '***') payload.smtp_password = pass;
 
-  // Remove empty strings from payload (don't overwrite with blanks)
-  Object.keys(payload).forEach(k => { if (payload[k] === '') delete payload[k]; });
-
   try {
     await apiFetch('/admin/settings', {
       method: 'POST',
