@@ -1,5 +1,6 @@
 import asyncio
 import httpx
+import ssl
 from bs4 import BeautifulSoup
 from typing import List, Tuple
 from datetime import datetime
@@ -170,8 +171,10 @@ async def get_sitemap_urls() -> List[str]:
 
     async with httpx.AsyncClient(
         headers={"User-Agent": "LegalAssistBot/1.0 (content indexer)"},
-        follow_redirects=True
+        follow_redirects=True,
+        verify=False,  # Tolerate expired/invalid SSL certs on target site
     ) as client:
+        print("[Scraper] Note: SSL verification disabled to handle expired certificates")
         # 1. Try sitemap first
         try:
             resp = await client.get(settings.site_sitemap_url, timeout=15.0)
@@ -250,7 +253,8 @@ async def scrape_and_index() -> dict:
 
     async with httpx.AsyncClient(
         headers={"User-Agent": "LegalAssistBot/1.0 (content indexer)"},
-        follow_redirects=True
+        follow_redirects=True,
+        verify=False,  # Tolerate expired/invalid SSL certs on target site
     ) as client:
         # Scrape in batches of 5 to be polite
         for i in range(0, len(urls), 5):
