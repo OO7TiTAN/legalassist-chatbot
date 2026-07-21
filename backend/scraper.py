@@ -155,8 +155,13 @@ def extract_text_from_html(html: str, url: str) -> Tuple[str, str]:
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
 async def fetch_page(client: httpx.AsyncClient, url: str) -> Tuple[str, int]:
     """Fetch a page with retry logic."""
-    response = await client.get(url, timeout=30.0)
-    return response.text, response.status_code
+    try:
+        response = await client.get(url, timeout=30.0)
+        print(f"[Scraper] Fetched {url} -> status={response.status_code}, len={len(response.text)}")
+        return response.text, response.status_code
+    except Exception as e:
+        print(f"[Scraper] Fetch attempt failed for {url}: {type(e).__name__}: {e}")
+        raise
 
 
 async def get_sitemap_urls() -> List[str]:
@@ -264,7 +269,7 @@ async def scrape_and_index() -> dict:
 
             for url, result in zip(batch, results):
                 if isinstance(result, Exception):
-                    print(f"[Scraper] Error fetching {url}: {result}")
+                    print(f"[Scraper] Error fetching {url}: {type(result).__name__}: {result}")
                     page_results.append({"url": url, "status": "error", "chunks": 0})
                     with Session(engine) as session:
                         session.add(ContentChunk(url=url, title="Error", chunk_count=0, status="error"))
@@ -272,8 +277,13 @@ async def scrape_and_index() -> dict:
                     continue
 
                 html, status_code = result
+                print(f"[Scraper] Processing {url}: status={status_code}, html_len={len(html)}")
                 if status_code != 200:
-                    page_results.append({"url": url, "status": "error", "chunks": 0})
+                    print(f"[Scraper] Non-200 status for {url}: {status_code}")
+                    page_results.append({"url": url, "status": f"http_{status_code}", "chunks": 0})
+                    with Session(engine) as session:
+                        session.add(ContentChunk(url=url, title=f"HTTP {status_code}", chunk_count=0, status="error"))
+                        session.commit()
                     continue
 
                 text, title = extract_text_from_html(html, url)
